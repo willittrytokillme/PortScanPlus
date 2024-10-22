@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd ~/PortScanPlus_beta/Bash/scr
+
+# Run the Python script
+sudo python3 psp_v0_9.py
+
+# Keep the terminal open after script execution (optional)
+# bash

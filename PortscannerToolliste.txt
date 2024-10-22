@@ -1,0 +1,205 @@
+def get_extended_tools(port: int) -> List[str]:
+    """
+    Enhanced tool mapping for common ports and services
+    Returns a list of relevant security tools and commands
+    """
+    tools = {
+        # FTP (20, 21)
+        20: [
+            "nmap -p20 -sV --script=ftp-* TARGET",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt ftp://TARGET",
+            "medusa -h TARGET -u admin -P /usr/share/wordlists/rockyou.txt -M ftp",
+            "ftp-fuzz",
+            "wget -m --no-passive ftp://anonymous:anonymous@TARGET"
+        ],
+        
+        21: [
+            "nmap -p21 -sV --script=ftp-* TARGET",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt ftp://TARGET",
+            "medusa -h TARGET -u admin -P /usr/share/wordlists/rockyou.txt -M ftp",
+            "ftp-fuzz",
+            "wget -m --no-passive ftp://anonymous:anonymous@TARGET",
+            "ftpmap -s TARGET"
+        ],
+
+        # SSH (22)
+        22: [
+            "nmap -p22 -sV --script=ssh-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt ssh://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M ssh",
+            "ssh-audit TARGET",
+            "sslyze --regular TARGET:22",
+            "crowbar -b sshkey -s TARGET -u root -k /root/.ssh/id_rsa",
+            "ncrack -p 22 --user root -P /usr/share/wordlists/rockyou.txt TARGET"
+        ],
+
+        # Telnet (23)
+        23: [
+            "nmap -p23 -sV --script=telnet-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt telnet://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M telnet",
+            "ncrack -p 23 --user root -P /usr/share/wordlists/rockyou.txt TARGET"
+        ],
+
+        # SMTP (25)
+        25: [
+            "nmap -p25 -sV --script=smtp-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt smtp://TARGET",
+            "swaks --to user@example.com --server TARGET",
+            "smtp-user-enum -M VRFY -U /usr/share/wordlists/metasploit/unix_users.txt -t TARGET",
+            "sendemail -f test@example.com -t test@example.com -u 'Test' -m 'Test' -s TARGET"
+        ],
+
+        # DNS (53)
+        53: [
+            "nmap -p53 -sV --script=dns-* TARGET",
+            "dnsenum TARGET",
+            "dnsrecon -d TARGET",
+            "fierce -domain TARGET",
+            "dig axfr @TARGET TARGET",
+            "host -l TARGET TARGET"
+        ],
+
+        # HTTP (80)
+        80: [
+            "nmap -p80 -sV --script=http-* TARGET",
+            "nikto -h TARGET",
+            "dirb http://TARGET",
+            "gobuster dir -u http://TARGET -w /usr/share/wordlists/dirb/common.txt",
+            "wfuzz -c -w /usr/share/wordlists/dirb/common.txt http://TARGET/FUZZ",
+            "whatweb TARGET",
+            "wafw00f http://TARGET",
+            "sqlmap -u 'http://TARGET' --forms --batch",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://TARGET/login.php",
+            "skipfish -o skipfish-results http://TARGET",
+            "arachni http://TARGET"
+        ],
+
+        # Kerberos (88)
+        88: [
+            "nmap -p88 -sV --script=krb5-* TARGET",
+            "enum4linux -k TARGET",
+            "rpcclient -U '' -N TARGET",
+            "kerbrute userenum -d domain.local --dc TARGET /usr/share/wordlists/metasploit/unix_users.txt"
+        ],
+
+        # POP3 (110)
+        110: [
+            "nmap -p110 -sV --script=pop3-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt pop3://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M pop3"
+        ],
+
+        # RPC (111)
+        111: [
+            "nmap -p111 -sV --script=rpcinfo TARGET",
+            "rpcinfo -p TARGET",
+            "showmount -e TARGET",
+            "rpcclient -U '' -N TARGET"
+        ],
+
+        # IMAP (143)
+        143: [
+            "nmap -p143 -sV --script=imap-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt imap://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M imap"
+        ],
+
+        # LDAP (389)
+        389: [
+            "nmap -p389 -sV --script=ldap-* TARGET",
+            "ldapsearch -h TARGET -x -s base",
+            "enum4linux -l TARGET",
+            "ldapdomaindump TARGET"
+        ],
+
+        # HTTPS (443)
+        443: [
+            "nmap -p443 -sV --script=ssl-* TARGET",
+            "sslscan TARGET",
+            "testssl.sh TARGET",
+            "sslyze --regular TARGET",
+            "nikto -h https://TARGET",
+            "gobuster dir -u https://TARGET -w /usr/share/wordlists/dirb/common.txt -k",
+            "wfuzz -c -w /usr/share/wordlists/dirb/common.txt https://TARGET/FUZZ",
+            "whatweb TARGET",
+            "wafw00f https://TARGET",
+            "sqlmap -u 'https://TARGET' --forms --batch",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt https-post-form://TARGET/login.php"
+        ],
+
+        # SMB (445)
+        445: [
+            "nmap -p445 -sV --script=smb-* TARGET",
+            "enum4linux -a TARGET",
+            "smbmap -H TARGET",
+            "smbclient -L //TARGET -N",
+            "crackmapexec smb TARGET",
+            "hydra -t 4 -l Administrator -P /usr/share/wordlists/rockyou.txt smb://TARGET"
+        ],
+
+        # MSSQL (1433)
+        1433: [
+            "nmap -p1433 -sV --script=ms-sql-* TARGET",
+            "sqsh -S TARGET",
+            "hydra -t 4 -l sa -P /usr/share/wordlists/rockyou.txt mssql://TARGET",
+            "medusa -h TARGET -u sa -P /usr/share/wordlists/rockyou.txt -M mssql"
+        ],
+
+        # MySQL (3306)
+        3306: [
+            "nmap -p3306 -sV --script=mysql-* TARGET",
+            "mysqldump -h TARGET -u root -p mysql",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt mysql://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M mysql",
+            "sqlmap -u 'http://TARGET/index.php?id=1' --dbs"
+        ],
+
+        # RDP (3389)
+        3389: [
+            "nmap -p3389 -sV --script=rdp-* TARGET",
+            "hydra -t 4 -l administrator -P /usr/share/wordlists/rockyou.txt rdp://TARGET",
+            "rdesktop TARGET",
+            "crowbar -b rdp -s TARGET -u administrator -C /usr/share/wordlists/rockyou.txt",
+            "ncrack -p 3389 --user administrator -P /usr/share/wordlists/rockyou.txt TARGET"
+        ],
+
+        # PostgreSQL (5432)
+        5432: [
+            "nmap -p5432 -sV --script=pgsql-* TARGET",
+            "hydra -t 4 -l postgres -P /usr/share/wordlists/rockyou.txt postgres://TARGET",
+            "medusa -h TARGET -u postgres -P /usr/share/wordlists/rockyou.txt -M postgres"
+        ],
+
+        # VNC (5900)
+        5900: [
+            "nmap -p5900 -sV --script=vnc-* TARGET",
+            "hydra -t 4 -P /usr/share/wordlists/rockyou.txt vnc://TARGET",
+            "vncviewer TARGET",
+            "crowbar -b vnc -s TARGET -C /usr/share/wordlists/rockyou.txt"
+        ],
+
+        # Redis (6379)
+        6379: [
+            "nmap -p6379 -sV --script=redis-* TARGET",
+            "redis-cli -h TARGET",
+            "hydra -t 4 -P /usr/share/wordlists/rockyou.txt redis://TARGET"
+        ],
+
+        # Webmin (10000)
+        10000: [
+            "nmap -p10000 -sV --script=http-* TARGET",
+            "nikto -h TARGET:10000",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt https-post-form://TARGET:10000/session_login.cgi"
+        ]
+    }
+    
+    # Default tools for unknown ports
+    default_tools = [
+        f"nmap -p{port} -sV -sC TARGET",
+        f"amap -d TARGET {port}",
+        f"nc -vv -z TARGET {port}",
+        f"telnet TARGET {port}"
+    ]
+    
+    return tools.get(port, default_tools)
