@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cd ~/PortScanPlus_beta/Gui/scr
+cd ~/PortScanPlus_gui_2_0/Gui/scr
 
 # Run the Python script
-sudo python3 gui_psp_v0_7.py
+sudo python3 gui_psp2_0.py
 
 # Keep the terminal open after script execution (optional)
 # bash

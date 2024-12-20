@@ -1,0 +1,111 @@
+from typing import List
+
+def get_extended_tools(port: int) -> List[str]:
+    """
+    Enhanced tool mapping for common ports and services
+    Compatible with both Kali Linux and Parrot OS
+    """
+    tools = {
+        # FTP (20, 21)
+        20: [
+            "nmap -p20 -sV --script=ftp-* TARGET",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt ftp://TARGET",
+            "medusa -h TARGET -u admin -P /usr/share/wordlists/rockyou.txt -M ftp",
+            "wget -m --no-passive ftp://anonymous:anonymous@TARGET",
+            # Added Metasploit modules
+            "msfconsole -q -x 'use auxiliary/scanner/ftp/ftp_version; set RHOSTS TARGET; run; exit'",
+            "msfconsole -q -x 'use auxiliary/scanner/ftp/anonymous; set RHOSTS TARGET; run; exit'"
+        ],
+        
+        21: [
+            "nmap -p21 -sV --script=ftp-* TARGET",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt ftp://TARGET",
+            "medusa -h TARGET -u admin -P /usr/share/wordlists/rockyou.txt -M ftp",
+            "wget -m --no-passive ftp://anonymous:anonymous@TARGET",
+            # Added Kali tools
+            "msfconsole -q -x 'use auxiliary/scanner/ftp/ftp_login; set RHOSTS TARGET; set USER_FILE /usr/share/wordlists/metasploit/unix_users.txt; set PASS_FILE /usr/share/wordlists/metasploit/unix_passwords.txt; run; exit'"
+        ],
+
+        # SSH (22)
+        22: [
+            "nmap -p22 -sV --script=ssh-* TARGET",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt ssh://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M ssh",
+            "ssh-audit TARGET",
+            "sslyze --regular TARGET:22",
+            "crowbar -b sshkey -s TARGET -u root -k /root/.ssh/id_rsa",
+            "ncrack -p 22 --user root -P /usr/share/wordlists/rockyou.txt TARGET",
+            # Added Metasploit modules
+            "msfconsole -q -x 'use auxiliary/scanner/ssh/ssh_version; set RHOSTS TARGET; run; exit'"
+        ],
+
+        # HTTP (80)
+        80: [
+            "nmap -p80 -sV --script=http-* TARGET",
+            "nikto -h TARGET",
+            "dirb http://TARGET",
+            "gobuster dir -u http://TARGET -w /usr/share/wordlists/dirb/common.txt",
+            "ffuf -w /usr/share/wordlists/dirb/common.txt -u http://TARGET/FUZZ",  # Added ffuf as modern alternative
+            "wfuzz -c -w /usr/share/wordlists/dirb/common.txt http://TARGET/FUZZ",
+            "whatweb TARGET",
+            "wafw00f http://TARGET",
+            "sqlmap -u 'http://TARGET' --forms --batch",
+            "hydra -t 4 -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://TARGET/login.php",
+            # Added Kali specific tools
+            "feroxbuster -u http://TARGET -w /usr/share/wordlists/dirb/common.txt",
+            "nuclei -u http://TARGET -t /usr/share/nuclei-templates/http/",
+            # Added Metasploit module
+            "msfconsole -q -x 'use auxiliary/scanner/http/http_version; set RHOSTS TARGET; run; exit'"
+        ],
+
+        # SMB (445)
+        445: [
+            "nmap -p445 -sV --script=smb-* TARGET",
+            "enum4linux -a TARGET",
+            "smbmap -H TARGET",
+            "smbclient -L //TARGET -N",
+            "crackmapexec smb TARGET",
+            "hydra -t 4 -l Administrator -P /usr/share/wordlists/rockyou.txt smb://TARGET",
+            # Added Kali tools
+            "nxc smb TARGET",  # New impacket tool
+            "msfconsole -q -x 'use auxiliary/scanner/smb/smb_version; set RHOSTS TARGET; run; exit'",
+            "msfconsole -q -x 'use auxiliary/scanner/smb/smb_enumshares; set RHOSTS TARGET; run; exit'"
+        ],
+
+        # MSSQL (1433)
+        1433: [
+            "nmap -p1433 -sV --script=ms-sql-* TARGET",
+            "sqsh -S TARGET",
+            "hydra -t 4 -l sa -P /usr/share/wordlists/rockyou.txt mssql://TARGET",
+            "medusa -h TARGET -u sa -P /usr/share/wordlists/rockyou.txt -M mssql",
+            # Added Metasploit modules
+            "msfconsole -q -x 'use auxiliary/scanner/mssql/mssql_ping; set RHOSTS TARGET; run; exit'",
+            "msfconsole -q -x 'use auxiliary/scanner/mssql/mssql_login; set RHOSTS TARGET; run; exit'"
+        ],
+
+        # MySQL (3306)
+        3306: [
+            "nmap -p3306 -sV --script=mysql-* TARGET",
+            "mysqldump -h TARGET -u root -p mysql",
+            "hydra -t 4 -l root -P /usr/share/wordlists/rockyou.txt mysql://TARGET",
+            "medusa -h TARGET -u root -P /usr/share/wordlists/rockyou.txt -M mysql",
+            "sqlmap -u 'http://TARGET/index.php?id=1' --dbs",
+            # Added Metasploit modules
+            "msfconsole -q -x 'use auxiliary/scanner/mysql/mysql_version; set RHOSTS TARGET; run; exit'",
+            "msfconsole -q -x 'use auxiliary/scanner/mysql/mysql_login; set RHOSTS TARGET; run; exit'"
+        ],
+
+        # Other ports remain the same...
+    }
+    
+    # Enhanced default tools for unknown ports
+    default_tools = [
+        f"nmap -p{port} -sV -sC TARGET",
+        f"amap -d TARGET {port}",
+        f"nc -vv -z TARGET {port}",
+        f"telnet TARGET {port}",
+        # Added Metasploit version scanner
+        f"msfconsole -q -x 'use auxiliary/scanner/portscan/tcp; set RHOSTS TARGET; set PORTS {port}; run; exit'"
+    ]
+    
+    return tools.get(port, default_tools)
