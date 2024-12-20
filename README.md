@@ -1,5 +1,5 @@
 PortScanPlus
-An all in one portscan App. At the Moment only made for ParrotOS but will later be working on all debian based Linus OS.
+an all in one portscan App. At the Moment only made for ParrotOS but will later be working on all debian based Linus OS.
 
 install:
 1. download the attached file .zip-file
